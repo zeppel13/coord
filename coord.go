@@ -11,7 +11,6 @@ import (
 	"strconv"
 )
 
-/***************** Uselsess
 type Coord struct {
 	Lat, Long float64
 }
@@ -19,7 +18,7 @@ type Coord struct {
 func (coord Coord) getPos() (float64, float64) {
 	return coord.Lat, coord.Long
 }
-************/
+
 /***************** Track *****************/
 type Track struct {
 	coordNumber int
@@ -43,8 +42,8 @@ func (track *Track) appendCoord(plat, plong float64) {
 
 }
 
-func (track *Track) insertCoord(i int, plat, plont float64) {
-	track.coordSlice = track.coordSlice[i:] + track.coordSlice[:i]
+func (track *Track) insertCoord(i int, plat, plong float64) {
+	track.coordSlice = append(track.coordSlice[i:], plat, plong) + track.coordSlice[:i]
 }
 func (track *Track) resetCoord() {
 	track.coordSlice = track.coordSlice[:0]
@@ -128,19 +127,20 @@ func inputloop(track Track) {
 				i    int     = 0
 			)
 
-			fmt.printf("Index :")
-			i, _ = strconv.ParseInt(input, 64)
+			fmt.Printf("Index :")
+			i, _ = strconv.ParseInt(input, 64) // What to do here? -> find parameters
 
 			fmt.Scanf("%v", &input)
 			/*** Do Something here ****/
-			fmt.printf("Latitude :")
+			fmt.Printf("Latitude :")
 			fmt.Scanf("%v", &input)
 			x, _ = strconv.ParseFloat(input, 64)
 			/*** Do Something here ****/
 
-			fmt.printf("Longitude :")
+			fmt.Printf("Longitude :")
 			fmt.Scanf("%v", &input)
 			y, _ = strconv.ParseFloat(input, 64)
+			track.insertCoord(i, x, y)
 
 			/*** Do Something here ****/
 
