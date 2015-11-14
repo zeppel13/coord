@@ -11,6 +11,7 @@ import (
 	"strconv"
 )
 
+/***************** Uselsess
 type Coord struct {
 	Lat, Long float64
 }
@@ -18,7 +19,7 @@ type Coord struct {
 func (coord Coord) getPos() (float64, float64) {
 	return coord.Lat, coord.Long
 }
-
+************/
 /***************** Track *****************/
 type Track struct {
 	coordNumber int
@@ -40,6 +41,10 @@ func (track *Track) appendCoord(plat, plong float64) {
 	track.coordNumber++
 	track.calcTrackDistance()
 
+}
+
+func (track *Track) insertCoord(i int, plat, plont float64) {
+	track.coordSlice = track.coordSlice[i:] + track.coordSlice[:i]
 }
 func (track *Track) resetCoord() {
 	track.coordSlice = track.coordSlice[:0]
@@ -115,6 +120,30 @@ func inputloop(track Track) {
 			y, _ = strconv.ParseFloat(input, 64)
 			track.appendCoord(x, y)
 			input = ""
+		}
+
+		if input == "i" || input == "insert" {
+			var (
+				x, y float64 = 0.0
+				i    int     = 0
+			)
+
+			fmt.printf("Index :")
+			i, _ = strconv.ParseInt(input, 64)
+
+			fmt.Scanf("%v", &input)
+			/*** Do Something here ****/
+			fmt.printf("Latitude :")
+			fmt.Scanf("%v", &input)
+			x, _ = strconv.ParseFloat(input, 64)
+			/*** Do Something here ****/
+
+			fmt.printf("Longitude :")
+			fmt.Scanf("%v", &input)
+			y, _ = strconv.ParseFloat(input, 64)
+
+			/*** Do Something here ****/
+
 		}
 		if input == "l" || input == "list" {
 			for i, v := range track.getCoordSlice() {
