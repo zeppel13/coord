@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+#!/usr/bin/python3
+
+>>>>>>> 31707e7f6a2aea96dce4b85f901fee715440ccef
 # coord.py der nächste Versuch
 # Sebastian Kind 23. Oktoboer 2015
 
