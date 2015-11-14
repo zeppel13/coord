@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-#!/usr/bin/python3
+
 # coord.py der nächste Versuch
 # Sebastian Kind 23. Oktoboer 2015
 
