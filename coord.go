@@ -10,7 +10,7 @@ import (
 	"math"
 	"strconv"
 )
-
+/************* Coord ************ unused
 type Coord struct {
 	Lat, Long float64
 }
