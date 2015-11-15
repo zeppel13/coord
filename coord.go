@@ -11,8 +11,58 @@ import (
 	"strconv"
 )
 
+/******* Linked List *******/
+type CoordList struct {
+	value Coord
+	next  *CoordList
+}
 
+func (list *CoordList) appendItem(item CoordList) {
+	for ; list.next != nil; list = list.next {
+	}
+	list.next = &item
+}
 
+func (list *CoordList) length() int {
+	var i int
+	for ; list.next != nil; list = list.next {
+		i++
+	}
+	return i
+}
+
+func (list *CoordList) printValue() {
+	for ; list.next != nil; list = list.next {
+		fmt.Println(list.value)
+	}
+}
+
+func (list *CoordList) getIndexValue(index int) Coord {
+	for i := 0; i < index; i++ {
+		list = list.next
+	}
+	return list.value
+}
+
+func (list *CoordList) insertAfter(pValue Coord) {
+	var newItem CoordList
+	newItem.value = pValue
+	newItem.next = list.next
+	list.next = &newItem
+}
+
+func (list *CoordList) insertAfterIndex(index int, pValue Coord) {
+	var newItem CoordList
+	for i := 0; i < index; i++ {
+		list = list.next
+	}
+
+	newItem.value = pValue
+	newItem.next = list.next
+	list.next = &newItem
+}
+
+/********* Coordinates ******/
 type Coord struct {
 	Lat, Long float64
 }
@@ -21,11 +71,19 @@ func (coord Coord) getPos() (float64, float64) {
 	return coord.Lat, coord.Long
 }
 
+func toCoord(pLat, pLong float64) Coord {
+	var newCoord Coord
+	newCoord.Lat = pLat
+	newCoord.Long = pLong
+	return newCoord
+}
+
 /***************** Track *****************/
 type Track struct {
 	coordNumber int
 	distance    float64
 	coordSlice  []float64
+	list        CoordList
 }
 
 func (track Track) getCoordSlice() []float64 {
@@ -37,28 +95,37 @@ func (track Track) getDistance() float64 {
 }
 
 func (track *Track) appendCoord(plat, plong float64) {
+	var (
+		lCoord  Coord
+		newItem CoordList
+	)
 
-	track.coordSlice = append(track.coordSlice, plat, plong)
+	lCoord.Lat = plat
+	lCoord.Long = plong
+	newItem.value = lCoord
+	track.list.appendItem(newItem)
 	track.coordNumber++
 	track.calcTrackDistance()
 
 }
 
-func (track *Track) insertCoord(i int, plat, plong float64) {
-	track.coordSlice = append(track.coordSlice[i:], plat, plong) + track.coordSlice[:i]
+func (track *Track) insertCoord(index int, plat, plong float64) {
+	var lCoord Coord
+	lCoord.Lat = plat
+	lCoord.Long = plong
+	track.list.insertAfterIndex(index, lCoord)
+
 }
 func (track *Track) resetCoord() {
-	track.coordSlice = track.coordSlice[:0]
+	track.list.next = nil
 	track.coordNumber = 0
 }
 
 func (track *Track) calcTrackDistance() {
 	track.distance = 0.0
-	for i := 0; i+3 < len(track.coordSlice); i++ {
-		alat := track.coordSlice[i]
-		along := track.coordSlice[i+1]
-		blat := track.coordSlice[i+2]
-		blong := track.coordSlice[i+3]
+	for i := 0; i+1 <= track.list.length(); i++ { // Some trouble is hidden behind this line
+		alat, along := track.list.getIndexValue(i).getPos()
+		blat, blong := track.list.getIndexValue(i + 1).getPos()
 		track.distance += track.calcDistance(alat, along, blat, blong)
 	}
 }
@@ -125,25 +192,22 @@ func inputloop(track Track) {
 
 		if input == "i" || input == "insert" {
 			var (
-				x, y float64
-                index int
+				x, y  float64
+				index int
 			)
 			fmt.Printf("Index :")
 			fmt.Scanf("%v", &input)
-			index, _ = strconv.Atoi(input) // What to do here? -> find parameters
-
-			/*** Do Something here ****/
+			index, _ = strconv.Atoi(input)
 			fmt.Printf("Latitude :")
 			fmt.Scanf("%v", &input)
 			x, _ = strconv.ParseFloat(input, 64)
-			/*** Do Something here ****/
 
 			fmt.Printf("Longitude :")
 			fmt.Scanf("%v", &input)
 			y, _ = strconv.ParseFloat(input, 64)
 			track.insertCoord(index, x, y)
 
-			/*** Do Something here ****/
+			track.list.insertAfterIndex(index, toCoord(x, y)) //missing function
 
 		}
 		if input == "l" || input == "list" {
