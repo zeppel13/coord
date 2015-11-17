@@ -13,18 +13,22 @@ import (
 
 /******* Linked List *******/
 type CoordList struct {
+	index int64
 	value Coord
 	next  *CoordList
 }
 
 func (list *CoordList) appendItem(item CoordList) {
+	var i int64
 	for ; list.next != nil; list = list.next {
+		i++
 	}
 	list.next = &item
+	list.next.index = i
 }
 
-func (list *CoordList) length() int {
-	var i int
+func (list *CoordList) length() int64 {
+	var i int64
 	for ; list.next != nil; list = list.next {
 		i++
 	}
@@ -33,12 +37,14 @@ func (list *CoordList) length() int {
 
 func (list *CoordList) printValue() {
 	for ; list.next != nil; list = list.next {
-		fmt.Println(list.value)
+
+		//fmt.Println(list.value, "\tIndex: val", list.index)
+		fmt.Println(list.next.value, "\tIndex: next", list.next.index)
 	}
 }
 
-func (list *CoordList) getIndexValue(index int) Coord {
-	for i := 0; i < index; i++ {
+func (list *CoordList) getIndexValue(index int64) Coord {
+	for i := 0; (int64)(i) != list.index && list.next != nil; i++ {
 		list = list.next
 	}
 	return list.value
@@ -47,19 +53,28 @@ func (list *CoordList) getIndexValue(index int) Coord {
 func (list *CoordList) insertAfter(pValue Coord) {
 	var newItem CoordList
 	newItem.value = pValue
+	newItem.index = list.index + 1
 	newItem.next = list.next
 	list.next = &newItem
 }
 
-func (list *CoordList) insertAfterIndex(index int, pValue Coord) {
-	var newItem CoordList
-	for i := 0; i < index; i++ {
+func (list *CoordList) insertAfterIndex(index int64, pValue Coord) {
+	var (
+		newItem CoordList
+		i       int64
+	)
+	for ; i < index; i++ {
 		list = list.next
 	}
-
+	newItem.index = list.index + 1
 	newItem.value = pValue
 	newItem.next = list.next
 	list.next = &newItem
+}
+
+func (list *CoordList) init() {
+	list.index = -1
+
 }
 
 /********* Coordinates ******/
@@ -102,6 +117,10 @@ func (track *Track) appendCoord(plat, plong float64) {
 
 	lCoord.Lat = plat
 	lCoord.Long = plong
+	/*** DEBUG ***/
+	fmt.Println(plat, plong)
+	/*** DEBUG ***/
+	newItem.index = track.list.length()
 	newItem.value = lCoord
 	track.list.appendItem(newItem)
 	track.coordNumber++
@@ -109,7 +128,7 @@ func (track *Track) appendCoord(plat, plong float64) {
 
 }
 
-func (track *Track) insertCoord(index int, plat, plong float64) {
+func (track *Track) insertCoord(index int64, plat, plong float64) {
 	var lCoord Coord
 	lCoord.Lat = plat
 	lCoord.Long = plong
@@ -123,7 +142,8 @@ func (track *Track) resetCoord() {
 
 func (track *Track) calcTrackDistance() {
 	track.distance = 0.0
-	for i := 0; i+1 <= track.list.length(); i++ { // Some trouble is hidden behind this line
+	var i int64 = 0
+	for ; i <= track.list.length(); i++ { // Some trouble is hidden behind this line // Some more trouble is hidden behind this line ... :wq
 		alat, along := track.list.getIndexValue(i).getPos()
 		blat, blong := track.list.getIndexValue(i + 1).getPos()
 		track.distance += track.calcDistance(alat, along, blat, blong)
@@ -179,25 +199,25 @@ func inputloop(track Track) {
 			printHelp()
 		}
 		if input == "a" || input == "append" {
-			var x, y float64
+			var lLat, lLong float64
 			fmt.Printf("Latitude: ")
 			fmt.Scanf("%v", &input)
-			x, _ = strconv.ParseFloat(input, 64)
+			lLat, _ = strconv.ParseFloat(input, 64)
 			fmt.Printf("Longitude: ")
 			fmt.Scanf("%v", &input)
-			y, _ = strconv.ParseFloat(input, 64)
-			track.appendCoord(x, y)
+			lLong, _ = strconv.ParseFloat(input, 64)
+			track.appendCoord(lLat, lLong)
 			input = ""
 		}
 
 		if input == "i" || input == "insert" {
 			var (
 				x, y  float64
-				index int
+				index int64
 			)
 			fmt.Printf("Index :")
 			fmt.Scanf("%v", &input)
-			index, _ = strconv.Atoi(input)
+			index, _ = strconv.ParseInt(input, 10, 64)
 			fmt.Printf("Latitude :")
 			fmt.Scanf("%v", &input)
 			x, _ = strconv.ParseFloat(input, 64)
@@ -217,8 +237,8 @@ func inputloop(track Track) {
 				} else {
 					fmt.Printf("%v°  |  ", v)
 				}
-
 			}
+			track.list.printValue()
 			fmt.Printf("\n")
 			input = ""
 
@@ -255,6 +275,7 @@ func main() {
 		place   = make(map[string]Coord)
 		myTrack Track
 	)
+	myTrack.list.init()
 	// get us some places
 	place["Joseph"] = Coord{39.851666666667, -88.9441666666670}
 	place["Sebastian"] = Coord{49, 10}
