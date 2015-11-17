@@ -36,15 +36,24 @@ func (list *CoordList) length() int64 {
 }
 
 func (list *CoordList) printValue() {
-	for ; list.next != nil; list = list.next {
+	var (
+		i    int64 = 0
+		t, g float64
+	)
 
-		//fmt.Println(list.value, "\tIndex: val", list.index)
-		fmt.Println(list.next.value, "\tIndex: next", list.next.index)
+	for i < list.length() {
+		if i%2 == 0 {
+			//fmt.Printf(" | ")
+		}
+		t, g = list.getIndexValue(i).getPos()
+		fmt.Printf(" | %v° %v°", t, g) //, "\tIndex: next", list.next.index)
+		i++
 	}
+	fmt.Printf(" |")
 }
 
 func (list *CoordList) getIndexValue(index int64) Coord {
-	for i := 0; (int64)(i) != list.index && list.next != nil; i++ {
+	for (index != list.index) && list.next != nil {
 		list = list.next
 	}
 	return list.value
@@ -101,10 +110,6 @@ type Track struct {
 	list        CoordList
 }
 
-func (track Track) getCoordSlice() []float64 {
-	return track.coordSlice[:]
-}
-
 func (track Track) getDistance() float64 {
 	return track.distance
 }
@@ -143,7 +148,7 @@ func (track *Track) resetCoord() {
 func (track *Track) calcTrackDistance() {
 	track.distance = 0.0
 	var i int64 = 0
-	for ; i <= track.list.length(); i++ { // Some trouble is hidden behind this line // Some more trouble is hidden behind this line ... :wq
+	for ; i+1 < track.list.length(); i++ {
 		alat, along := track.list.getIndexValue(i).getPos()
 		blat, blong := track.list.getIndexValue(i + 1).getPos()
 		track.distance += track.calcDistance(alat, along, blat, blong)
@@ -231,14 +236,7 @@ func inputloop(track Track) {
 
 		}
 		if input == "l" || input == "list" {
-			for i, v := range track.getCoordSlice() {
-				if i%2 == 0 {
-					fmt.Printf("%v° ", v)
-				} else {
-					fmt.Printf("%v°  |  ", v)
-				}
-			}
-			track.list.printValue()
+			track.list.printValue() //Uh bad style. That's the Brechstangenmethode for debugging
 			fmt.Printf("\n")
 			input = ""
 
@@ -256,7 +254,7 @@ func inputloop(track Track) {
 
 		input = ""
 		//Check all at the end
-		track.calcTrackDistance()
+		//track.calcTrackDistance()
 	}
 }
 
